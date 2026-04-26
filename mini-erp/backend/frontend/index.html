@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini ERP</title>
+</head>
+<body>
+  <h1>Mini ERP System</h1>
+
+  <h2>Register</h2>
+  <input id="name" placeholder="Name">
+  <input id="email" placeholder="Email">
+  <input id="password" placeholder="Password">
+  <button onclick="register()">Register</button>
+
+  <h2>Login</h2>
+  <input id="lemail" placeholder="Email">
+  <input id="lpassword" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <h2>Create Project</h2>
+  <input id="pname" placeholder="Project Name">
+  <button onclick="createProject()">Create</button>
+
+  <h2>Projects</h2>
+  <button onclick="getProjects()">Load Projects</button>
+  <ul id="list"></ul>
+
+<script>
+let token = "";
+
+// REGISTER
+async function register(){
+  await fetch("http://localhost:5000/api/register",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      role:"Manager"
+    })
+  });
+  alert("Registered");
+}
+
+// LOGIN
+async function login(){
+  const res = await fetch("http://localhost:5000/api/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      email: lemail.value,
+      password: lpassword.value
+    })
+  });
+
+  const data = await res.json();
+  token = data.token;
+  alert("Logged in");
+}
+
+// CREATE PROJECT
+async function createProject(){
+  await fetch("http://localhost:5000/api/projects",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization": token
+    },
+    body: JSON.stringify({
+      name: pname.value
+    })
+  });
+  alert("Project created");
+}
+
+// GET PROJECTS
+async function getProjects(){
+  const res = await fetch("http://localhost:5000/api/projects",{
+    headers:{"Authorization": token}
+  });
+
+  const data = await res.json();
+  list.innerHTML = data.map(p=>`<li>${p.name}</li>`).join("");
+}
+</script>
+
+</body>
+</html>
